@@ -54,7 +54,7 @@
                 android:layout_height="24dp"
                 android:layout_margin="10dp"
                 android:scaleType="centerCrop"
-                android:src="@mipmap/ic_launcher_round"/>
+                android:src="@mipmap/ic_logo"/>
 
             <TextView
                 android:id="@+id/title"
