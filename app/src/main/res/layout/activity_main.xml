@@ -52,6 +52,7 @@
                 android:id="@+id/icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
+                android:background="@drawable/radial_bg"
                 android:layout_margin="10dp"
                 android:scaleType="centerCrop"
                 android:src="@mipmap/ic_logo"/>
@@ -78,6 +79,7 @@
                 android:id="@+id/more"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:background="@drawable/radial_bg"
                 android:src="@android:drawable/ic_menu_more"/>
             <CheckBox
                 android:id="@+id/lock"
