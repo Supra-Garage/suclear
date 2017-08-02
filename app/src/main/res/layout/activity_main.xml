@@ -33,8 +33,8 @@
             android:id="@+id/url_editor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:layout_gravity="center"
+            android:gravity="center"
             android:hint="url entry"
             android:imeOptions="actionGo"
             android:inputType="textUri"
@@ -52,8 +52,8 @@
                 android:id="@+id/icon"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:background="@drawable/radial_bg"
                 android:layout_margin="10dp"
+                android:background="@drawable/radial_bg"
                 android:scaleType="centerCrop"
                 android:src="@mipmap/ic_logo"/>
 
@@ -69,22 +69,41 @@
                 android:maxLines="1"
                 />
 
-            <ImageButton
+            <ImageView
+                android:id="@+id/mic"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:padding="5dp"
+                android:src="@drawable/ic_mic_light_24dp"/>
+
+            <ImageView
+                android:id="@+id/scan"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:padding="5dp"
+                android:src="@drawable/ic_camera_alt_light_24dp"/>
+
+
+            <ImageView
                 android:id="@+id/reload"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:src="@android:drawable/stat_notify_sync"/>
+                android:padding="5dp"
+                android:src="@drawable/ic_refresh_light_24dp"/>
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/more"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:background="@drawable/radial_bg"
-                android:src="@android:drawable/ic_menu_more"/>
+                android:padding="5dp"
+                android:src="@drawable/ic_menu_light_24dp"/>
+
             <CheckBox
                 android:id="@+id/lock"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:padding="5dp"
+                android:button="@drawable/ic_lock_light"
                 />
 
         </LinearLayout>
