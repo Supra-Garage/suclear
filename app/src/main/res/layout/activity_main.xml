@@ -74,6 +74,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:padding="5dp"
+                android:visibility="gone"
                 android:src="@drawable/ic_mic_light_24dp"/>
 
             <ImageView
@@ -81,6 +82,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:padding="5dp"
+                android:visibility="gone"
                 android:src="@drawable/ic_camera_alt_light_24dp"/>
 
 
@@ -96,6 +98,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:padding="5dp"
+                android:visibility="gone"
                 android:src="@drawable/ic_menu_light_24dp"/>
 
             <CheckBox

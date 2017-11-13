@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -277,7 +278,11 @@ public class MainActivity extends Activity implements KeyboardWatcherFrameLayout
     private void updateProgress(int newProgress) {
         sHandler.removeCallbacks(mProgressWatcher);
         mProgress.setIndeterminate(false);
-        mProgress.setProgress(newProgress, true);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            mProgress.setProgress(newProgress);
+        } else {
+            mProgress.setProgress(newProgress, true);
+        }
         if (newProgress < 95) {
             sHandler.postDelayed(mProgressWatcher, 2000);
         }
