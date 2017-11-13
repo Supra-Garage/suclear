@@ -94,6 +94,12 @@
                 android:src="@drawable/ic_refresh_light_24dp"/>
 
             <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:padding="5dp"
+                android:src="@drawable/ic_search_light_24dp"/>
+
+            <ImageView
                 android:id="@+id/more"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
