@@ -24,7 +24,7 @@ public class MainWebViewClient extends WebViewClient {
 
         String url = request.getUrl().toString();
         if (URLUtil.isHttpUrl(url) || URLUtil.isHttpsUrl(url)) {
-            // This is my web site, so do not override; let my WebView load the page
+            // This is web site, so do not override; let my WebView load the page
             return super.shouldOverrideUrlLoading(view, request);
         }
         // Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs
