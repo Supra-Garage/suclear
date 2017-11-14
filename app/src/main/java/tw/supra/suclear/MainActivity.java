@@ -17,8 +17,10 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.URLUtil;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -68,26 +70,27 @@ public class MainActivity extends Activity implements KeyboardWatcherFrameLayout
         KeyboardWatcherFrameLayout container = (KeyboardWatcherFrameLayout) findViewById(R.id.container);
         container.setListener(this);
 
-        mWebView = (MainWebView) findViewById(R.id.webview);
+        mWebView = findViewById(R.id.webview);
         mWebView.setHost(this);
         mWebView.setWebViewClient(new MainWebViewClient());
         mWebView.setWebChromeClient(new MainWebChromeClient());
+        
         WebSettings settings = mWebView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
 
-        mUrlEditor = (EditText) findViewById(R.id.url_editor);
+        mUrlEditor = findViewById(R.id.url_editor);
         mUrlEditor.setOnEditorActionListener(this);
 
-        mLocker = (CompoundButton) findViewById(R.id.lock);
+        mLocker = findViewById(R.id.lock);
         mLocker.setOnCheckedChangeListener(this);
 
-        mProgress = (ProgressBar) findViewById(R.id.progress);
+        mProgress = findViewById(R.id.progress);
 
         mController = findViewById(R.id.controller);
         mPanel = findViewById(R.id.panel);
-        mTitle = (TextView) findViewById(R.id.title);
-        mIcon = (ImageView) findViewById(R.id.icon);
+        mTitle = findViewById(R.id.title);
+        mIcon = findViewById(R.id.icon);
         mTitle.setOnClickListener(this);
 
 //        findViewById(R.id.forward).setOnClickListener(this);
@@ -106,6 +109,24 @@ public class MainActivity extends Activity implements KeyboardWatcherFrameLayout
         super.onResume();
         updateUiController();
         hideControllerDelayed();
+    }
+
+    @Nullable
+    @Override
+    public WebViewClient getWebViewClient() {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public WebChromeClient getWebChromeClient() {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public WebSuclearClient getWebSuclearClient() {
+        return null;
     }
 
     private void updateUiController() {

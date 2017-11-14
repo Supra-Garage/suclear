@@ -9,7 +9,8 @@ import android.webkit.WebView;
  */
 
 public class MainWebChromeClient extends WebChromeClient {
-
+    
+ 
     @Override
     public void onReceivedTitle(WebView view, final String title) {
         super.onReceivedTitle(view, title);

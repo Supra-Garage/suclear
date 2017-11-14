@@ -1,13 +1,25 @@
 package tw.supra.suclear;
 
 import android.graphics.Bitmap;
+import android.support.annotation.Nullable;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 /**
  * Created by supra on 17-7-23.
  */
 
 public interface MainWebViewHost {
+
+    @Nullable
+    WebViewClient getWebViewClient();
+
+    @Nullable
+    WebChromeClient getWebChromeClient();
+
+    @Nullable
+    WebSuclearClient getWebSuclearClient();
 
     void setTitle(WebView view, String title);
 
