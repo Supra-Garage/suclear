@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <tw.supra.suclear.KeyboardWatcherFrameLayout
-    android:id="@+id/container"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
     tools:context="tw.supra.suclear.MainActivity">
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,6 +22,7 @@
             android:layout_weight="1"/>
 
     </LinearLayout>
+
 
     <FrameLayout
         android:id="@+id/controller"
@@ -74,16 +76,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:padding="5dp"
-                android:visibility="gone"
-                android:src="@drawable/ic_mic_light_24dp"/>
+                android:src="@drawable/ic_mic_light_24dp"
+                android:visibility="gone"/>
 
             <ImageView
                 android:id="@+id/scan"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:padding="5dp"
-                android:visibility="gone"
-                android:src="@drawable/ic_camera_alt_light_24dp"/>
+                android:src="@drawable/ic_camera_alt_light_24dp"
+                android:visibility="gone"/>
 
 
             <ImageView
@@ -94,6 +96,7 @@
                 android:src="@drawable/ic_refresh_light_24dp"/>
 
             <ImageView
+                android:id="@+id/find"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:padding="5dp"
@@ -104,15 +107,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:padding="5dp"
-                android:visibility="gone"
-                android:src="@drawable/ic_menu_light_24dp"/>
+                android:src="@drawable/ic_menu_light_24dp"
+                android:visibility="gone"/>
 
             <CheckBox
                 android:id="@+id/lock"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:padding="5dp"
                 android:button="@drawable/ic_lock_light"
+                android:padding="5dp"
                 />
 
         </LinearLayout>
@@ -131,5 +134,53 @@
         android:gravity="bottom"
         android:padding="0dp"
         />
+
+
+    <LinearLayout
+        android:id="@+id/find_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:visibility="gone"
+        android:background="@drawable/controller_top_bg"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+
+        <Button
+            android:id="@+id/btn_find_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@android:string/cancel"
+            />
+
+
+        <EditText
+            android:id="@+id/et_find_key"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="find what"
+            android:lines="1"
+            />
+
+        <TextView
+            android:id="@+id/tv_find_count"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"/>
+
+        <Button
+            android:id="@+id/btn_find_privous"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="privous"/>
+
+        <Button
+            android:id="@+id/btn_find_next"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="next"/>
+    </LinearLayout>
 
 </tw.supra.suclear.KeyboardWatcherFrameLayout>

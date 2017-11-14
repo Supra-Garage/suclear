@@ -4,13 +4,16 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -36,8 +39,9 @@ import java.util.regex.Pattern;
 import okhttp3.HttpUrl;
 import tw.supra.lib.supower.util.Logger;
 
-public class MainActivity extends Activity implements KeyboardWatcherFrameLayout.OnSoftKeyboardShownListener,
-        MainWebViewHost, View.OnClickListener, TextView.OnEditorActionListener, CompoundButton.OnCheckedChangeListener {
+public class MainActivity extends Activity implements WebView.FindListener, MainWebViewHost, View.OnClickListener,
+        KeyboardWatcherFrameLayout.OnSoftKeyboardShownListener, TextView.OnEditorActionListener,
+        CompoundButton.OnCheckedChangeListener {
     private static final String SCHEME_HTTP = "http";
     private static final int MSG_EXIT = android.R.id.closeButton;
     private static Handler sHandler = new Handler();
@@ -49,6 +53,8 @@ public class MainActivity extends Activity implements KeyboardWatcherFrameLayout
     private ImageView mIcon;
     private MainWebView mWebView;
     private ProgressBar mProgress;
+    private TextView mFindCount;
+    private EditText mFindKey;
     private final Runnable mProgressWatcher = new Runnable() {
         @Override
         public void run() {
@@ -67,14 +73,14 @@ public class MainActivity extends Activity implements KeyboardWatcherFrameLayout
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        KeyboardWatcherFrameLayout container = (KeyboardWatcherFrameLayout) findViewById(R.id.container);
+        KeyboardWatcherFrameLayout container = findViewById(R.id.container);
         container.setListener(this);
 
         mWebView = findViewById(R.id.webview);
         mWebView.setHost(this);
         mWebView.setWebViewClient(new MainWebViewClient());
         mWebView.setWebChromeClient(new MainWebChromeClient());
-        
+
         WebSettings settings = mWebView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
@@ -96,6 +102,8 @@ public class MainActivity extends Activity implements KeyboardWatcherFrameLayout
 //        findViewById(R.id.forward).setOnClickListener(this);
         findViewById(R.id.reload).setOnClickListener(this);
         findViewById(R.id.more).setOnClickListener(this);
+
+        setupFind();
     }
 
     @Override
@@ -109,6 +117,11 @@ public class MainActivity extends Activity implements KeyboardWatcherFrameLayout
         super.onResume();
         updateUiController();
         hideControllerDelayed();
+    }
+
+    @Override
+    public void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches, boolean isDoneCounting) {
+        mFindCount.setText(activeMatchOrdinal + "/" + numberOfMatches);
     }
 
     @Nullable
@@ -170,6 +183,19 @@ public class MainActivity extends Activity implements KeyboardWatcherFrameLayout
             case R.id.reload:
                 mWebView.reload();
                 break;
+            case R.id.find:
+                findViewById(R.id.find_container).setVisibility(View.VISIBLE);
+                break;
+            case R.id.btn_find_cancel:
+                findViewById(R.id.find_container).setVisibility(View.GONE);
+                mFindKey.setText("");
+                break;
+            case R.id.btn_find_privous:
+                mWebView.findNext(false);
+                break;
+            case R.id.btn_find_next:
+                mWebView.findNext(true);
+                break;
             default:
                 toast("not implement yet !");
                 break;
@@ -207,6 +233,33 @@ public class MainActivity extends Activity implements KeyboardWatcherFrameLayout
             return;
         }
         super.onBackPressed();
+    }
+
+    private void setupFind() {
+        mWebView.setFindListener(this);
+
+        mFindCount = findViewById(R.id.tv_find_count);
+        mFindKey = findViewById(R.id.et_find_key);
+        
+        findViewById(R.id.find).setOnClickListener(this);
+        findViewById(R.id.btn_find_cancel).setOnClickListener(this);
+        findViewById(R.id.btn_find_next).setOnClickListener(this);
+        findViewById(R.id.btn_find_privous).setOnClickListener(this);
+
+        mFindKey.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                mWebView.findAllAsync(s.toString());
+            }
+        });
     }
 
     private boolean preBack() {
