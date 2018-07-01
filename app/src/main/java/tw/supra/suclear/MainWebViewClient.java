@@ -1,7 +1,12 @@
 package tw.supra.suclear;
 
 
+import android.app.AlertDialog;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.webkit.URLUtil;
@@ -27,8 +32,21 @@ public class MainWebViewClient extends WebViewClient {
             // This is web site, so do not override; let my WebView load the page
             return super.shouldOverrideUrlLoading(view, request);
         }
+
+
         // Otherwise, the link is not for a page on my site, so launch another Activity that handles URLs
-        view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, request.getUrl()));
+        Intent i = new Intent(Intent.ACTION_VIEW, request.getUrl());
+
+        Context context = view.getContext();
+        ComponentName componentName = i.resolveActivity(context.getPackageManager());
+        if (null == componentName) {
+            return false;
+        }
+        new AlertDialog.Builder(context)
+                .setMessage(componentName.toString())
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> context.startActivity(i))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
         return true;
     }
 
