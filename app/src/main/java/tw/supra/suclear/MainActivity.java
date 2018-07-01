@@ -1,6 +1,8 @@
 package tw.supra.suclear;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -8,6 +10,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -19,6 +22,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -39,9 +43,9 @@ import java.util.regex.Pattern;
 import okhttp3.HttpUrl;
 import tw.supra.lib.supower.util.Logger;
 
-public class MainActivity extends Activity implements WebView.FindListener, MainWebViewHost, View.OnClickListener,
-        KeyboardWatcherFrameLayout.OnSoftKeyboardShownListener, TextView.OnEditorActionListener,
-        CompoundButton.OnCheckedChangeListener {
+public class MainActivity extends Activity implements WebView.FindListener, MainWebViewHost,
+        View.OnClickListener, KeyboardWatcherFrameLayout.OnSoftKeyboardShownListener,
+        TextView.OnEditorActionListener, DownloadListener, CompoundButton.OnCheckedChangeListener {
     private static final String SCHEME_HTTP = "http";
     private static final int MSG_EXIT = android.R.id.closeButton;
     private static Handler sHandler = new Handler();
@@ -69,6 +73,7 @@ public class MainActivity extends Activity implements WebView.FindListener, Main
         }
     };
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +85,7 @@ public class MainActivity extends Activity implements WebView.FindListener, Main
         mWebView.setHost(this);
         mWebView.setWebViewClient(new MainWebViewClient());
         mWebView.setWebChromeClient(new MainWebChromeClient());
+        mWebView.setDownloadListener(this);
 
         WebSettings settings = mWebView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -140,6 +146,25 @@ public class MainActivity extends Activity implements WebView.FindListener, Main
     @Override
     public WebSuclearClient getWebSuclearClient() {
         return null;
+    }
+
+    @Override
+    public void onDownloadStart(String url, String userAgent, String contentDisposition,
+                                String mimetype, long contentLength) {
+
+
+        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(url))
+                .setDescription(contentDisposition)
+                .setMimeType(mimetype)
+                // This put the download in the same Download dir the browser uses
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, getPackageName())
+                // Notify user when download is completed (Seems to be available since Honeycomb only)
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        // When downloading music and videos they will be listed in the player
+        // (Seems to be available since Honeycomb only)
+        r.allowScanningByMediaScanner();
+        // Start download
+        getSystemService(DownloadManager.class).enqueue(r);
     }
 
     private void updateUiController() {
@@ -240,7 +265,7 @@ public class MainActivity extends Activity implements WebView.FindListener, Main
 
         mFindCount = findViewById(R.id.tv_find_count);
         mFindKey = findViewById(R.id.et_find_key);
-        
+
         findViewById(R.id.find).setOnClickListener(this);
         findViewById(R.id.btn_find_cancel).setOnClickListener(this);
         findViewById(R.id.btn_find_next).setOnClickListener(this);
