@@ -1,9 +1,15 @@
 package tw.supra.suclear;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.DownloadManager;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.app.DownloadManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
@@ -14,11 +20,15 @@ import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.v4.app.ShareCompat;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -28,10 +38,14 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListPopupWindow;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,10 +56,14 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 import tw.supra.lib.supower.util.Logger;
+import tw.supra.suclear.server.SuServer;
 
-public class MainActivity extends Activity implements WebView.FindListener, MainWebViewHost,
+public class MainActivity extends Activity implements PermissionsRequestCode, WebView.FindListener, MainWebViewHost,
         View.OnClickListener, KeyboardWatcherFrameLayout.OnSoftKeyboardShownListener,
-        TextView.OnEditorActionListener, DownloadListener, CompoundButton.OnCheckedChangeListener {
+        TextView.OnEditorActionListener, CompoundButton.OnCheckedChangeListener, DownloadListener {
+
+
+
     private static final String SCHEME_HTTP = "http";
     private static final int MSG_EXIT = android.R.id.closeButton;
     private static Handler sHandler = new Handler();
@@ -77,6 +95,7 @@ public class MainActivity extends Activity implements WebView.FindListener, Main
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SuServer.initIfNecessary(this);
         setContentView(R.layout.activity_main);
         KeyboardWatcherFrameLayout container = findViewById(R.id.container);
         container.setListener(this);
@@ -126,6 +145,28 @@ public class MainActivity extends Activity implements WebView.FindListener, Main
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onOptionsMenuClosed(Menu menu) {
+        super.onOptionsMenuClosed(menu);
+    }
+
+    @Override
     public void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches, boolean isDoneCounting) {
         mFindCount.setText(activeMatchOrdinal + "/" + numberOfMatches);
     }
@@ -149,22 +190,85 @@ public class MainActivity extends Activity implements WebView.FindListener, Main
     }
 
     @Override
-    public void onDownloadStart(String url, String userAgent, String contentDisposition,
-                                String mimetype, long contentLength) {
+    public void onDownloadStart(final String url, String userAgent, final String contentDisposition, final String mimetype, long contentLength) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.download);
+        builder.setMessage(contentDisposition + " " + url);
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                downloadBySystem(url, contentDisposition, mimetype);
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, null);
+        builder.setCancelable(true);
+        builder.show();
+    }
+
+    private void downloadBySystem(String url, String contentDisposition, String mimetype) {
+
+// Here, thisActivity is the current activity
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PRC_STORAGE);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
 
 
-        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(url))
-                .setDescription(contentDisposition)
-                .setMimeType(mimetype)
-                // This put the download in the same Download dir the browser uses
-                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, getPackageName())
-                // Notify user when download is completed (Seems to be available since Honeycomb only)
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        // 指定下载地址
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+        request.setMimeType(mimetype);
+
         // When downloading music and videos they will be listed in the player
         // (Seems to be available since Honeycomb only)
-        r.allowScanningByMediaScanner();
+        // 允许媒体扫描，根据下载的文件类型被加入相册、音乐等媒体库
+        request.allowScanningByMediaScanner();
+        // 设置通知的显示类型，下载进行时和完成后显示通知
+//        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        // 设置通知栏的标题，如果不设置，默认使用文件名
+//        request.setTitle("This is title");
+        // 设置通知栏的描述
+        request.setDescription(contentDisposition);
+        // 允许在计费流量下下载
+//        request.setAllowedOverMetered(false);
+        // 允许该记录在下载管理界面可见
+//        request.setVisibleInDownloadsUi(false);
+        // 允许漫游时下载
+//        request.setAllowedOverRoaming(true);
+        // 允许下载的网路类型
+//        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
+        // 设置下载文件保存的路径和文件名
+        String fileName = URLUtil.guessFileName(url, contentDisposition, mimetype);
+        Log.d(Logger.getStackTag(), "fileName:" + fileName);
+        // This put the download in the same Download dir the browser uses
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+//        另外可选一下方法，自定义下载路径
+//        request.setDestinationUri()
+//        request.setDestinationInExternalFilesDir()
+        final DownloadManager downloadManager = getSystemService(DownloadManager.class);
+        if (null == downloadManager) {
+            toast("can not find download manager");
+            return;
+        }
         // Start download
-        getSystemService(DownloadManager.class).enqueue(r);
+        long downloadId = downloadManager.enqueue(request);
+        Log.d("downloadId:{}", "" + downloadId);
     }
 
     private void updateUiController() {
@@ -220,6 +324,9 @@ public class MainActivity extends Activity implements WebView.FindListener, Main
                 break;
             case R.id.btn_find_next:
                 mWebView.findNext(true);
+                break;
+            case R.id.more:
+                more(view);
                 break;
             default:
                 toast("not implement yet !");
@@ -446,7 +553,7 @@ public class MainActivity extends Activity implements WebView.FindListener, Main
 
     private void hideControllerDelayed() {
         sHandler.removeCallbacks(mHideControllerTask);
-        sHandler.postDelayed(mHideControllerTask, 3000);
+        sHandler.postDelayed(mHideControllerTask, 5000);
     }
 
     private void clearHideControllerTask() {
@@ -587,6 +694,30 @@ public class MainActivity extends Activity implements WebView.FindListener, Main
             mWebView.goBack();
         }
         return canGoBack;
+    }
+
+    private void more(View anchor) {
+        openOptionsMenu();
+//        PopupMenu popup = new PopupMenu(this, anchor);
+//        Menu menu = popup.getMenu();
+//        menu.add("supra");
+//        menu.add("brz");
+//        menu.add("wrx");
+//        popup.setGravity(Gravity.CENTER);
+//        popup.setOnDismissListener(new PopupMenu.OnDismissListener() {
+//            @Override
+//            public void onDismiss(PopupMenu menu) {
+//                Toast.makeText(MainActivity.this, "onDismiss", Toast.LENGTH_LONG ).show();
+//            }
+//        });
+//        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                Toast.makeText(MainActivity.this, "onMenuItemClick : "+item.getTitle(), Toast.LENGTH_LONG ).show();
+//                return true;
+//            }
+//        });
+//        popup.show();
     }
 
     private void toast(CharSequence text) {
