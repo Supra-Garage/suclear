@@ -6,12 +6,9 @@
     android:layout_height="match_parent"
     tools:context=".demo.DemoActivity">
 
-    <ListView
-        android:id="@+id/list_view"
+    <ExpandableListView
+        android:id="@+id/ex_list_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-
-    </ListView>
+        android:layout_height="match_parent" />
 
 </android.support.constraint.ConstraintLayout>
