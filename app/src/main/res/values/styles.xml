@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.Design"></style>
+    <style name="AppTheme" parent="android:Theme.NoTitleBar" />
 
     <style name="Widget.Supra.ProgressBar.Horizontal" parent="android:style/Widget.Material.ProgressBar.Horizontal">
         <item name="android:minHeight">1dip</item>

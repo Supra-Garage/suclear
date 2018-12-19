@@ -56,12 +56,12 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 import tw.supra.lib.supower.util.Logger;
+import tw.supra.suclear.demo.DemoActivity;
 import tw.supra.suclear.server.SuServer;
 
 public class MainActivity extends Activity implements PermissionsRequestCode, WebView.FindListener, MainWebViewHost,
         View.OnClickListener, KeyboardWatcherFrameLayout.OnSoftKeyboardShownListener,
         TextView.OnEditorActionListener, CompoundButton.OnCheckedChangeListener, DownloadListener {
-
 
 
     private static final String SCHEME_HTTP = "http";
@@ -157,7 +157,13 @@ public class MainActivity extends Activity implements PermissionsRequestCode, We
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
+        switch (item.getItemId()) {
+            case R.id.menu_item_demo:
+                startActivity(new Intent(this, DemoActivity.class));
+                return true;
+            default:
+                break;
+        }
         return super.onOptionsItemSelected(item);
     }
 

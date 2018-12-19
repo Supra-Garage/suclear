@@ -4,4 +4,8 @@
     <string name="refresh">刷新</string>
     <string name="download">下载</string>
     <string name="ask_to_open">请求打开：</string>
+    <string name="demo">demo</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
