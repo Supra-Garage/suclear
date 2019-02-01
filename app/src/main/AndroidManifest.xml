@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="tw.supra.suclear">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="tw.supra.suclear"
+    >
 
     <uses-feature android:name="android.software.leanback" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
@@ -15,7 +17,10 @@
         android:roundIcon="@mipmap/ic_launcher_trans_round"
         android:supportsRtl="true"
         android:fullBackupContent="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:replace="android:appComponentFactory"
+        android:appComponentFactory="whateverString"
+        >
         <activity
             android:name=".MainActivity"
             android:banner="@mipmap/ic_launcher"
