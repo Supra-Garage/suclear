@@ -4,11 +4,6 @@ plugins {
     id("kotlin-android-extensions")
 }
 
-
-
-
-val kotlin_version = "1.3.11"
-
 android {
     compileSdkVersion(28)
     defaultConfig {
@@ -37,7 +32,7 @@ dependencies {
 //    implementation("androidx.arch.core:core:2.0.0-rc01")
     implementation("androidx.core:core:1.1.0-alpha04")
     implementation("androidx.core:core-ktx:1.1.0-alpha04")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.20")
     implementation("androidx.appcompat:appcompat:1.0.2")
     implementation("com.google.android.material:material:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.0.0")
