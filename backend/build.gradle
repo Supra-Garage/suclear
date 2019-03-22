@@ -1,0 +1,73 @@
+// Copyright 2017 Google Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+def projectId = 'supra-garage'
+
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'com.google.cloud.tools.appengine'
+apply plugin: 'com.google.cloud.tools.endpoints-framework-server'
+
+dependencies {
+    compile 'com.google.endpoints:endpoints-framework-guice:2.0.9'
+    compile 'com.google.endpoints:endpoints-framework:2.2.0'
+    compile 'javax.inject:javax.inject:1'
+    compile 'com.google.appengine:appengine-api-1.0-sdk:1.9.71'
+    compile 'javax.servlet:servlet-api:2.5'
+    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
+    compile 'jstl:jstl:1.2'
+//    compile 'com.google.cloud:google-cloud:+'
+    compile 'com.google.cloud:google-cloud-storage:1.65.0'
+    testCompile 'junit:junit:4.12'
+    testCompile 'com.google.truth:truth:0.33'
+    testCompile 'org.mockito:mockito-all:1.10.19'
+    testCompile 'com.google.appengine:appengine-testing:1.9.71'
+    testCompile 'com.google.appengine:appengine-api-stubs:1.9.71'
+    testCompile 'com.google.appengine:appengine-tools-sdk:1.9.60'
+
+}
+
+appengine {  // App Engine tasks configuration
+    tools.cloudSdkHome = "/home/supra/opt/google-cloud-sdk"
+}
+
+endpointsServer {
+    // Endpoints Framework Plugin server-side configuration
+    hostname = "${projectId}.appspot.com"
+}
+
+// Always run unit tests
+appengineDeploy.dependsOn test
+appengineStage.dependsOn test
+
+test {
+    useJUnit()
+    testLogging.showStandardStreams = true
+    beforeTest { descriptor ->
+        logger.lifecycle("test: " + descriptor + "  Running")
+    }
+
+    onOutput { descriptor, event ->
+        logger.lifecycle("test: " + descriptor + ": " + event.message)
+    }
+    afterTest { descriptor, result ->
+        logger.lifecycle("test: " + descriptor + ": " + result)
+    }
+}
+
+group = "tw.supra.suclear"        // Generated output GroupId
+version = "1.0-SNAPSHOT"       // Version in generated output
+
+sourceCompatibility = JavaVersion.VERSION_1_8     // App Engine Flexible uses Java 8
+targetCompatibility = JavaVersion.VERSION_1_8     // App Engine Flexible uses Java 8

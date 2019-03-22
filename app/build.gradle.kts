@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("kotlin-android-extensions")
+    id("com.google.cloud.tools.endpoints-framework-client")
 }
 
 android {
@@ -17,7 +18,7 @@ android {
     buildTypes {
         getByName("release") {
             setMinifyEnabled(false)
-            proguardFiles( getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -30,18 +31,18 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("androidx.arch.core:core-common:2.0.0")
 //    implementation("androidx.arch.core:core:2.0.0-rc01")
-    implementation("androidx.core:core:1.1.0-alpha04")
-    implementation("androidx.core:core-ktx:1.1.0-alpha04")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.20")
+    implementation("androidx.core:core:1.1.0-alpha05")
+    implementation("androidx.core:core-ktx:1.1.0-alpha05")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.21")
     implementation("androidx.appcompat:appcompat:1.0.2")
     implementation("com.google.android.material:material:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.0.0")
-    implementation("androidx.annotation:annotation:1.0.1")
+    implementation("androidx.annotation:annotation:1.0.2")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
-    implementation("androidx.lifecycle:lifecycle-extensions:2.1.0-alpha02")
+    implementation("androidx.lifecycle:lifecycle-extensions:2.1.0-alpha03")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.0.0")
-    implementation("android.arch.navigation:navigation-fragment-ktx:1.0.0-alpha11")
-    implementation("android.arch.navigation:navigation-ui-ktx:1.0.0-alpha11")
+    implementation("android.arch.navigation:navigation-fragment-ktx:1.0.0")
+    implementation("android.arch.navigation:navigation-ui-ktx:1.0.0")
     implementation("androidx.vectordrawable:vectordrawable:1.0.1")
     implementation("androidx.gridlayout:gridlayout:1.0.0")
     implementation("androidx.mediarouter:mediarouter:1.0.0")
@@ -62,6 +63,22 @@ dependencies {
     annotationProcessor("com.github.bumptech.glide:compiler:4.0.0-RC1")
     testImplementation("junit:junit:4.12")
     androidTestImplementation("androidx.test:runner:1.1.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.1.2-alpha01")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0-alpha02")
     implementation("com.mikepenz:materialdrawer:6.1.1")
+    implementation("com.google.firebase:firebase-core:16.0.8")
+
+
+    // V2: Endpoints Framework v2 migration
+//    endpointsServer(project(":backend", "endpoints"))
+    implementation("com.google.api-client:google-api-client:")
+    implementation("com.google.http-client:google-http-client-android:1.28.0")
+//    implementation("com.google.appengine:appengine-api-1.0-sdk:+")
+
+    implementation("com.google.api-client:google-api-client-android:+"){
+        exclude(module = "httpclient") // for android projects
+    }
 }
+
+//endpointsClient {
+//    discoveryDocs = ['src/endpoints/myApi-v1-rest.discovery']
+//}

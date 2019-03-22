@@ -7,12 +7,21 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:3.3.0")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.20")
-        classpath("android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0-alpha11")
-
+        classpath("com.android.tools.build:gradle:3.3.2")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.21")
+        classpath("android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0")
+        classpath("com.google.gms:google-services:4.2.0")
+        // V2: Include this dependency when using Endpoints Framework v2
+        classpath("com.google.guava:guava:24.1-jre")
+//        classpath("com.google.cloud.tools:endpoints-framework-gradle-plugin:1.0.2")
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
+
+        // App Engine Gradle plugin
+        classpath("com.google.cloud.tools:appengine-gradle-plugin:1.3.4")
+        // Endpoints Frameworks Gradle plugin
+        classpath("com.google.cloud.tools:endpoints-framework-gradle-plugin:2.0.1")
+
     }
 }
 
