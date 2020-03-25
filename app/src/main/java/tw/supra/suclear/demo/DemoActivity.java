@@ -38,19 +38,8 @@ public class DemoActivity extends Activity implements ServiceConnection, Adapter
                             new Intent(DemoActivity.this, SuService.class)))
                     .addAction("stopService", msg -> stopService(
                             new Intent(DemoActivity.this, SuService.class)))
-                    .addAction("bindService", msg -> {
-                        synchronized (mServices) {
-                            bindService(new Intent(DemoActivity.this, SuService.class),
-                                    DemoActivity.this, 0);
-                        }
-                    })
-                    .addAction("unbindService", msg -> {
-                synchronized (mServices) {
-                    if (hasServiceConnection()) {
-                        unbindService(DemoActivity.this);
-                    }
-                }
-            }),
+                    .addAction("bindService", msg -> bindService())
+                    .addAction("unbindService", msg -> unbindService()),
             new Demo("PipedSteam").setDesc("流").addAction("A", "B", "C")
     };
 
@@ -66,7 +55,7 @@ public class DemoActivity extends Activity implements ServiceConnection, Adapter
 
     @Override
     protected void onDestroy() {
-        unbindService(this);
+        unbindService();
         super.onDestroy();
     }
 
@@ -110,6 +99,20 @@ public class DemoActivity extends Activity implements ServiceConnection, Adapter
     private boolean hasServiceConnection() {
         synchronized (mServices) {
             return !mServices.isEmpty();
+        }
+    }
+
+    private void bindService() {
+        synchronized (mServices) {
+            bindService(new Intent(DemoActivity.this, SuService.class), this, 0);
+        }
+    }
+
+    private void unbindService() {
+        synchronized (mServices) {
+            if (hasServiceConnection()) {
+                unbindService(this);
+            }
         }
     }
 

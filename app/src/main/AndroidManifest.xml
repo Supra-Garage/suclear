@@ -20,11 +20,13 @@
         android:theme="@style/AppTheme"
         tools:replace="android:appComponentFactory"
         android:appComponentFactory="whateverString"
+        android:usesCleartextTraffic="true"
         >
         <activity
             android:name=".MainActivity"
             android:banner="@mipmap/ic_launcher"
             android:configChanges="keyboard|keyboardHidden|orientation|layoutDirection|screenSize"
+            android:launchMode="singleInstance"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,6 +51,7 @@
 
         <activity
             android:name=".demo.DemoActivity"
+            android:launchMode="singleTask"
             android:label="@string/demo"
             >
             <intent-filter>

@@ -15,6 +15,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
@@ -22,6 +24,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,7 +54,7 @@ import tw.supra.lib.supower.util.Logger;
 import tw.supra.suclear.demo.DemoActivity;
 import tw.supra.suclear.server.SuServer;
 
-public class MainActivity extends Activity implements PermissionsRequestCode, WebView.FindListener, MainWebViewHost,
+public class MainActivity extends AbsActivity implements PermissionsRequestCode, WebView.FindListener, MainWebViewHost,
         View.OnClickListener, KeyboardWatcherFrameLayout.OnSoftKeyboardShownListener,
         TextView.OnEditorActionListener, CompoundButton.OnCheckedChangeListener, DownloadListener {
 
@@ -67,6 +70,7 @@ public class MainActivity extends Activity implements PermissionsRequestCode, We
     private ImageView mIcon;
     private MainWebView mWebView;
     private ProgressBar mProgress;
+    private View mFindContainer;
     private TextView mFindCount;
     private EditText mFindKey;
     private final Runnable mProgressWatcher = new Runnable() {
@@ -143,25 +147,18 @@ public class MainActivity extends Activity implements PermissionsRequestCode, We
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_demo:
                 startActivity(new Intent(this, DemoActivity.class));
                 return true;
+            case R.id.menu_item_find:
+                toggleFind();
+                return true;
             default:
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onOptionsMenuClosed(Menu menu) {
-        super.onOptionsMenuClosed(menu);
     }
 
     @Override
@@ -310,12 +307,8 @@ public class MainActivity extends Activity implements PermissionsRequestCode, We
             case R.id.reload:
                 mWebView.reload();
                 break;
-            case R.id.find:
-                findViewById(R.id.find_container).setVisibility(View.VISIBLE);
-                break;
             case R.id.btn_find_cancel:
-                findViewById(R.id.find_container).setVisibility(View.GONE);
-                mFindKey.setText("");
+                cancelFind();
                 break;
             case R.id.btn_find_privous:
                 mWebView.findNext(false);
@@ -324,7 +317,7 @@ public class MainActivity extends Activity implements PermissionsRequestCode, We
                 mWebView.findNext(true);
                 break;
             case R.id.more:
-                more(view);
+                openOptionsMenu();
                 break;
             default:
                 toast("not implement yet !");
@@ -367,11 +360,9 @@ public class MainActivity extends Activity implements PermissionsRequestCode, We
 
     private void setupFind() {
         mWebView.setFindListener(this);
-
+        mFindContainer = findViewById(R.id.find_container);
         mFindCount = findViewById(R.id.tv_find_count);
         mFindKey = findViewById(R.id.et_find_key);
-
-        findViewById(R.id.find).setOnClickListener(this);
         findViewById(R.id.btn_find_cancel).setOnClickListener(this);
         findViewById(R.id.btn_find_next).setOnClickListener(this);
         findViewById(R.id.btn_find_privous).setOnClickListener(this);
@@ -390,6 +381,24 @@ public class MainActivity extends Activity implements PermissionsRequestCode, We
                 mWebView.findAllAsync(s.toString());
             }
         });
+    }
+
+    private void toggleFind() {
+        if (View.VISIBLE == mFindContainer.getVisibility()) {
+            cancelFind();
+        } else {
+            openFind();
+        }
+    }
+
+
+    private void openFind() {
+        mFindContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void cancelFind() {
+        mFindKey.setText("");
+        mFindContainer.setVisibility(View.GONE);
     }
 
     private boolean preBack() {
@@ -694,29 +703,6 @@ public class MainActivity extends Activity implements PermissionsRequestCode, We
         return canGoBack;
     }
 
-    private void more(View anchor) {
-        openOptionsMenu();
-//        PopupMenu popup = new PopupMenu(this, anchor);
-//        Menu menu = popup.getMenu();
-//        menu.add("supra");
-//        menu.add("brz");
-//        menu.add("wrx");
-//        popup.setGravity(Gravity.CENTER);
-//        popup.setOnDismissListener(new PopupMenu.OnDismissListener() {
-//            @Override
-//            public void onDismiss(PopupMenu menu) {
-//                Toast.makeText(MainActivity.this, "onDismiss", Toast.LENGTH_LONG ).show();
-//            }
-//        });
-//        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-//            @Override
-//            public boolean onMenuItemClick(MenuItem item) {
-//                Toast.makeText(MainActivity.this, "onMenuItemClick : "+item.getTitle(), Toast.LENGTH_LONG ).show();
-//                return true;
-//            }
-//        });
-//        popup.show();
-    }
 
     private void toast(CharSequence text) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
