@@ -8,12 +8,14 @@ import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import tw.supra.suclear.R;
-import tw.supra.suclear.widget.AbsWidget;
+import tw.supra.suclear.widget.Agency;
+import tw.supra.suclear.widget.Widget;
 
-public class Finder<HosT extends Activity> extends AbsWidget<HosT>
+public class Finder<HosT extends Activity> extends Widget<HosT>
         implements WebView.FindListener, View.OnClickListener, TextWatcher {
     private View mViewRoot;
     private TextView mFindCount;
@@ -21,8 +23,14 @@ public class Finder<HosT extends Activity> extends AbsWidget<HosT>
     private @Nullable
     WebView mWebView;
 
-    public Finder(HosT host) {
-        super(host);
+    public Finder(@NonNull Agency<HosT> agency) {
+        super(agency);
+    }
+
+    @Nullable
+    @Override
+    protected HostCallback createHostCallback() {
+        return null;
     }
 
     @Override

@@ -1,81 +1,80 @@
 package tw.supra.suclear;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.app.DownloadManager;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
 
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.webkit.DownloadListener;
 import android.webkit.URLUtil;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 import tw.supra.lib.supower.util.Logger;
 import tw.supra.suclear.demo.DemoActivity;
+import tw.supra.suclear.utils.typedbox.AppUtil;
+import tw.supra.suclear.widget.Agency;
 import tw.supra.suclear.widget.dock.Docker;
 import tw.supra.suclear.server.SuServer;
 import tw.supra.suclear.widget.find.Finder;
+import tw.supra.suclear.widget.web.Browser;
 
-public class MainActivity extends AbsActivity implements PermissionsRequestCode, MainWebViewHost,
-        View.OnClickListener, KeyboardWatcherFrameLayout.OnSoftKeyboardShownListener,
-        TextView.OnEditorActionListener, CompoundButton.OnCheckedChangeListener, DownloadListener {
-
+public class MainActivity extends AbsActivity implements KeyboardWatcherFrameLayout.OnSoftKeyboardShownListener {
 
     private static final String SCHEME_HTTP = "http";
     private static final int MSG_EXIT = android.R.id.closeButton;
     private static Handler sHandler = new Handler();
-    private final Map<String, String> mTouchIconMap = new HashMap<>();
-    private EditText mUrlEditor;
-    private TextView mTitle;
-    private View mPanel;
-    private View mController;
-    private MainWebView mWebView;
-    private ProgressBar mProgress;
-    private final Docker<MainActivity> mDocker = new Docker<>(this);
-    private final Finder<MainActivity> mFinder = new Finder<>(this);
 
-    private final Runnable mProgressWatcher = new Runnable() {
+    private final Agency<MainActivity> mAgency = new Agency<>(this);
+    private final Browser<MainActivity> mBrowser = new Browser<MainActivity>(mAgency) {
         @Override
-        public void run() {
-            mProgress.setIndeterminate(true);
+        public void setTitle(WebView view, String title) {
+            mDocker.setTitle(title);
+        }
+
+        @Override
+        public void setUrl(WebView view, String url) {
+            mDocker.setUrl(url);
+        }
+
+        @Override
+        public void setIcon(WebView view, Bitmap icon) {
+            mDocker.setIconWithPage(view.getUrl(), icon);
+        }
+
+        @Override
+        public void setTouchIconUrl(WebView view, String url, boolean precomposed) {
+            mDocker.setTouchIconUrlWithPage(view.getUrl(), url);
+        }
+
+        @Override
+        public void changeProgress(WebView view, int newProgress) {
+            mDocker.updateProgress(newProgress);
         }
     };
-    private CompoundButton mLocker;
-    private final Runnable mHideControllerTask = () -> hideController();
+    private final Finder<MainActivity> mFinder = new Finder<>(mAgency);
+    private final Docker<MainActivity> mDocker = new Docker<MainActivity>(mAgency) {
+        @Override
+        protected void onReload() {
+            mBrowser.reload();
+        }
+
+        @Override
+        protected void onLaunch(CharSequence action) {
+            go(action);
+        }
+    };
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -86,34 +85,9 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
         KeyboardWatcherFrameLayout container = findViewById(R.id.container);
         container.setListener(this);
 
-        mWebView = findViewById(R.id.webview);
-        mWebView.setHost(this);
-        mWebView.setWebViewClient(new MainWebViewClient());
-        mWebView.setWebChromeClient(new MainWebChromeClient());
-        mWebView.setDownloadListener(this);
-
-        WebSettings settings = mWebView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-
-        mUrlEditor = findViewById(R.id.url_editor);
-        mUrlEditor.setOnEditorActionListener(this);
-
-        mLocker = findViewById(R.id.lock);
-        mLocker.setOnCheckedChangeListener(this);
-
-        mProgress = findViewById(R.id.progress);
-
-        mController = findViewById(R.id.controller);
-        mPanel = findViewById(R.id.panel);
-        mTitle = findViewById(R.id.title);
-        mTitle.setOnClickListener(this);
-        mDocker.initIfNecessary();
-
-//        findViewById(R.id.forward).setOnClickListener(this);
-        findViewById(R.id.reload).setOnClickListener(this);
-        findViewById(R.id.more).setOnClickListener(this);
-        mFinder.initIfNecessary();
+        mBrowser.ensureInitialized();
+        mDocker.ensureInitialized();
+        mFinder.ensureInitialized();
     }
 
     @Override
@@ -125,8 +99,7 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
     @Override
     protected void onResume() {
         super.onResume();
-        updateUiController();
-        hideControllerDelayed();
+        mAgency.onResume();
     }
 
     @Override
@@ -142,7 +115,7 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
                 startActivity(new Intent(this, DemoActivity.class));
                 return true;
             case R.id.menu_item_find:
-                mFinder.toggleFind(mWebView);
+                mFinder.toggleFind(mBrowser.curWebView());
                 return true;
             default:
                 break;
@@ -150,185 +123,16 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
         return super.onOptionsItemSelected(item);
     }
 
-    @Nullable
-    @Override
-    public WebViewClient getWebViewClient() {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public WebChromeClient getWebChromeClient() {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public WebSuclearClient getWebSuclearClient() {
-        return null;
-    }
-
-    @Override
-    public void onDownloadStart(final String url, String userAgent, final String contentDisposition,
-                                final String mimetype, long contentLength) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.download);
-        builder.setMessage(contentDisposition + " " + url);
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                downloadBySystem(url, contentDisposition, mimetype);
-            }
-        });
-        builder.setNegativeButton(android.R.string.cancel, null);
-        builder.setCancelable(true);
-        builder.show();
-    }
-
-    private void downloadBySystem(String url, String contentDisposition, String mimetype) {
-
-// Here, thisActivity is the current activity
-        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-            } else {
-
-                // No explanation needed, we can request the permission.
-
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        PRC_STORAGE);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
-        }
-
-
-        // 指定下载地址
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-        request.setMimeType(mimetype);
-
-        // When downloading music and videos they will be listed in the player
-        // (Seems to be available since Honeycomb only)
-        // 允许媒体扫描，根据下载的文件类型被加入相册、音乐等媒体库
-        request.allowScanningByMediaScanner();
-        // 设置通知的显示类型，下载进行时和完成后显示通知
-//        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        // 设置通知栏的标题，如果不设置，默认使用文件名
-//        request.setTitle("This is title");
-        // 设置通知栏的描述
-        request.setDescription(contentDisposition);
-        // 允许在计费流量下下载
-//        request.setAllowedOverMetered(false);
-        // 允许该记录在下载管理界面可见
-//        request.setVisibleInDownloadsUi(false);
-        // 允许漫游时下载
-//        request.setAllowedOverRoaming(true);
-        // 允许下载的网路类型
-//        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
-        // 设置下载文件保存的路径和文件名
-        String fileName = URLUtil.guessFileName(url, contentDisposition, mimetype);
-        Log.d(Logger.getStackTag(), "fileName:" + fileName);
-        // This put the download in the same Download dir the browser uses
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-//        另外可选一下方法，自定义下载路径
-//        request.setDestinationUri()
-//        request.setDestinationInExternalFilesDir()
-        final DownloadManager downloadManager = getSystemService(DownloadManager.class);
-        if (null == downloadManager) {
-            toast("can not find download manager");
-            return;
-        }
-        // Start download
-        long downloadId = downloadManager.enqueue(request);
-        Log.d("downloadId:{}", "" + downloadId);
-    }
-
-    private void updateUiController() {
-        updateUiController(getResources().getConfiguration());
-    }
-
-    private void updateUiController(Configuration config) {
-        switch (config.orientation) {
-            case Configuration.ORIENTATION_UNDEFINED:
-            case Configuration.ORIENTATION_PORTRAIT:
-                showController();
-                break;
-            case Configuration.ORIENTATION_LANDSCAPE:
-                if (!isEditorVisible()) {
-                    hideController();
-                }
-                break;
-            default:
-                break;
-        }
-    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        sHandler.removeCallbacks(mProgressWatcher);
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-//            case R.id.forward:
-//                goForward();
-//                break;
-//            case R.id.hide:
-//                hideController();
-//                break;
-            case R.id.title:
-                edit();
-                break;
-            case R.id.reload:
-                mWebView.reload();
-                break;
-            case R.id.more:
-                openOptionsMenu();
-                break;
-            default:
-                toast("not implement yet !");
-                break;
-        }
-    }
-
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (isChecked) {
-            clearHideControllerTask();
-        } else {
-            hideControllerDelayed();
-        }
-    }
-
-    @Override
-    public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-        Log.i(this.getClass().getSimpleName(), String.format("onEditorAction(%d) ===\n keyEvent(%s)", i, keyEvent));
-        switch (i) {
-            case EditorInfo.IME_ACTION_DONE:
-            case EditorInfo.IME_ACTION_SEARCH:
-            case EditorInfo.IME_ACTION_GO:
-                hideEditor();
-                updateUiController();
-                go(textView.getText());
-                return true;
-            default:
-                return false;
-        }
+        mAgency.onDestroy();
     }
 
     @Override
     public void onBackPressed() {
-        if (showController() || hideEditor() || goBack() || preBack()) {
+        if (mDocker.showController() || mDocker.hideEditor() || mBrowser.goBack() || preBack()) {
             return;
         }
         super.onBackPressed();
@@ -339,188 +143,22 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
         if (sHandler.hasMessages(MSG_EXIT)) {
             return false;
         }
-        toast("press back again for exit");
+        AppUtil.toast(this, "press back again for exit");
         sHandler.sendEmptyMessageDelayed(MSG_EXIT, 2000);
         return true;
     }
 
     @Override
-    public void setTitle(WebView view, String title) {
-        mTitle.setText(title.trim());
-    }
-
-    @Override
-    public void setUrl(WebView view, String url) {
-        mUrlEditor.setText(url);
-        mTitle.setHint(url);
-    }
-
-    @Override
-    public void clearUrl(WebView view, String url) {
-    }
-
-    @Override
-    public void setIcon(WebView view, Bitmap icon) {
-        Log.i(Logger.getStackTag("icon is null? "), String.valueOf(null == icon));
-
-        if (null != icon) {
-            Log.i(Logger.getStackTag("icon size"), String.valueOf(icon.getByteCount()));
-        }
-
-        if (!setIcon(mTouchIconMap.get(view.getUrl())) && null != icon) {
-            Log.i(Logger.getStackTag("icon size"), String.valueOf(icon.getByteCount()));
-            setIcon(icon);
-        }
-    }
-
-    @Override
-    public void setTouchIconUrl(WebView view, String url, boolean precomposed) {
-        setIcon(view, url);
-    }
-
-    public boolean setIcon(WebView view, String url) {
-        if (null == view) {
-            return false;
-        }
-        return setIcon(view.getUrl(), url);
-    }
-
-    public boolean setIcon(String viewUrl, String imgUrl) {
-        Log.i(Logger.getStackTag("viewUrl"), viewUrl);
-        Log.i(Logger.getStackTag("imgUrl"), imgUrl);
-        if (TextUtils.isEmpty(viewUrl) || TextUtils.isEmpty(imgUrl)) {
-            return false;
-        }
-        mTouchIconMap.put(viewUrl, imgUrl);
-        return setIcon(imgUrl);
-    }
-
-    public boolean setIcon(String imgUrl) {
-        Log.i(Logger.getStackTag(), "imgUrl: " + imgUrl);
-        if (TextUtils.isEmpty(imgUrl)) {
-            return false;
-        }
-        mDocker.setIcon(imgUrl);
-        return true;
-    }
-
-    public boolean setIcon(Bitmap img) {
-        Log.i(Logger.getStackTag(), "img: " + img);
-        if (null == img) {
-            return false;
-        }
-        mDocker.setIcon(img);
-        return true;
-    }
-
-
-    @Override
-    public void changeProgress(WebView view, int newProgress) {
-        updateProgress(newProgress);
-    }
-
-    @Override
     public void onSoftKeyboardShown(boolean isShowing) {
         if (!isShowing) {
-            hideEditor();
+            mDocker.hideEditor();
         }
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        updateUiController(newConfig);
-    }
-
-    private void updateProgress(int newProgress) {
-        sHandler.removeCallbacks(mProgressWatcher);
-        mProgress.setIndeterminate(false);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            mProgress.setProgress(newProgress);
-        } else {
-            mProgress.setProgress(newProgress, true);
-        }
-        if (newProgress < 95) {
-            sHandler.postDelayed(mProgressWatcher, 2000);
-        }
-    }
-
-    private boolean showEditor() {
-        return toggleEditor(true);
-    }
-
-    private boolean hideEditor() {
-        return toggleEditor(false);
-    }
-
-    private boolean toggleEditor(boolean visible) {
-        boolean toggle = visible ^ isEditorVisible();
-        if (toggle) {
-            toggleEditor();
-        }
-        return toggle;
-    }
-
-    private void toggleEditor() {
-        boolean visible = !isEditorVisible();
-        mUrlEditor.setVisibility(visible ? View.VISIBLE : View.GONE);
-        mPanel.setVisibility(visible ? View.GONE : View.VISIBLE);
-        InputMethodManager imm = getSystemService(InputMethodManager.class);
-        if (visible) {
-            clearHideControllerTask();
-            mUrlEditor.setSelection(0, mUrlEditor.getText().length());
-            mUrlEditor.requestFocus();
-            imm.showSoftInput(mUrlEditor, InputMethodManager.SHOW_IMPLICIT);
-        } else {
-            hideControllerDelayed();
-            imm.hideSoftInputFromWindow(mUrlEditor.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
-        }
-    }
-
-    private boolean showController() {
-        if (toggleController(true)) {
-            hideControllerDelayed();
-            return true;
-        }
-        return false;
-    }
-
-    private boolean hideController() {
-        return toggleController(false);
-    }
-
-    private boolean toggleController(boolean visible) {
-        return visible ^ isControllerVisible() && toggleController();
-    }
-
-    private boolean toggleController() {
-        boolean visible = !isControllerVisible();
-        if (!visible && mLocker.isChecked()) {
-            return false;
-        }
-        mController.setVisibility(visible ? View.VISIBLE : View.GONE);
-        return true;
-    }
-
-    private void hideControllerDelayed() {
-        sHandler.removeCallbacks(mHideControllerTask);
-        sHandler.postDelayed(mHideControllerTask, 5000);
-    }
-
-    private void clearHideControllerTask() {
-        sHandler.removeCallbacks(mHideControllerTask);
-    }
-
-    private boolean isEditorVisible() {
-        return mUrlEditor.getVisibility() == View.VISIBLE;
-    }
-
-    private boolean isControllerVisible() {
-        return mController.getVisibility() == View.VISIBLE;
-    }
-
-    private void edit() {
-        showEditor();
+        mDocker.updateUiController(newConfig);
     }
 
     private boolean go(CharSequence query) {
@@ -529,7 +167,7 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
 
     private boolean loadUrl(CharSequence target) {
         if (TextUtils.isEmpty(target)) {
-            toast("empty url");
+            AppUtil.toast(this, "empty url");
             Log.i(Logger.getStackTag(), "empty url");
             return false;
         }
@@ -562,17 +200,17 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
             Log.i(Logger.getStackTag("urlStr"), "isNotValidUrl");
             return false;
         }
-        mUrlEditor.setText(urlStr);
-        mTitle.setHint(urlStr);
+        mDocker.setUrl(urlStr);
+
         Log.i(Logger.getStackTag("load url"), urlStr);
-        mWebView.loadUrl(urlStr);
+        mBrowser.loadUrl(urlStr);
         return true;
     }
 
     private boolean openUri(CharSequence target) {
 
         if (TextUtils.isEmpty(target)) {
-            toast("empty url");
+            AppUtil.toast(this, "empty url");
             return false;
         }
         String uriStr = target.toString();
@@ -618,7 +256,7 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
     private boolean search(CharSequence target) {
 
         if (TextUtils.isEmpty(target)) {
-            toast("empty query");
+            AppUtil.toast(this, "empty query");
             return false;
         }
         String query = target.toString();
@@ -631,28 +269,5 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
         return loadUrl(url);
     }
 
-    private boolean goForward() {
-        boolean canGoForward = mWebView.canGoForward();
-        if (canGoForward) {
-            mWebView.goForward();
-        }
-        return canGoForward;
-    }
 
-    private boolean goBack() {
-        boolean canGoBack = mWebView.canGoBack();
-        if (canGoBack) {
-            mWebView.goBack();
-        }
-        return canGoBack;
-    }
-
-
-    private void toast(CharSequence text) {
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-    }
-
-    private void toast(@StringRes int res) {
-        Toast.makeText(this, res, Toast.LENGTH_SHORT).show();
-    }
 }

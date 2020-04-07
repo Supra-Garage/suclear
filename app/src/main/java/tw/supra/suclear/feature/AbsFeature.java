@@ -1,21 +1,21 @@
-package tw.supra.suclear.widget;
+package tw.supra.suclear.feature;
 
-import android.app.Activity;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-public abstract class AbsWidget<HosT extends Activity> implements Widget<HosT> {
-    private final @NonNull
-    HosT mHost;
+public abstract class AbsFeature<HosT extends Context> implements Feature<HosT> {
+    private final @NonNull HosT mHost;
     private boolean mHasInitialized = false;
 
-    public AbsWidget(@NonNull HosT host) {
+    public AbsFeature(@NonNull HosT host) {
         mHost = host;
     }
 
     protected abstract boolean onInit();
+    protected abstract boolean hasValidHost();
 
-    public boolean initIfNecessary() {
+    public boolean ensureInitialized() {
         if (valid()) {
             return true;
         }
@@ -36,8 +36,5 @@ public abstract class AbsWidget<HosT extends Activity> implements Widget<HosT> {
         return mHasInitialized && hasValidHost();
     }
 
-    protected boolean hasValidHost() {
-        return !mHost.isDestroyed() && !mHost.isFinishing();
-    }
 
 }

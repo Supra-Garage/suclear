@@ -129,12 +129,7 @@ public final class TypedBox {
         if (null == handler) {
             action.onCallback(item);
         } else {
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    action.onCallback(item);
-                }
-            });
+            handler.post(() -> action.onCallback(item));
         }
     }
 
@@ -151,7 +146,7 @@ public final class TypedBox {
         if (allowCast && map instanceof HashMap) {
             return (HashMap<KeyT, ValueT>) map;
         }
-        return null == map ? new HashMap<KeyT, ValueT>() : new HashMap<>(map);
+        return null == map ? new HashMap<>() : new HashMap<>(map);
     }
 
 
