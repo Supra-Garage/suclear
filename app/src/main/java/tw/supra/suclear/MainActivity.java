@@ -2,7 +2,6 @@ package tw.supra.suclear;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.DialogInterface;
@@ -16,15 +15,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,7 +34,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,9 +46,11 @@ import java.util.regex.Pattern;
 import okhttp3.HttpUrl;
 import tw.supra.lib.supower.util.Logger;
 import tw.supra.suclear.demo.DemoActivity;
+import tw.supra.suclear.widget.dock.Docker;
 import tw.supra.suclear.server.SuServer;
+import tw.supra.suclear.widget.find.Finder;
 
-public class MainActivity extends AbsActivity implements PermissionsRequestCode, WebView.FindListener, MainWebViewHost,
+public class MainActivity extends AbsActivity implements PermissionsRequestCode, MainWebViewHost,
         View.OnClickListener, KeyboardWatcherFrameLayout.OnSoftKeyboardShownListener,
         TextView.OnEditorActionListener, CompoundButton.OnCheckedChangeListener, DownloadListener {
 
@@ -67,12 +63,11 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
     private TextView mTitle;
     private View mPanel;
     private View mController;
-    private ImageView mIcon;
     private MainWebView mWebView;
     private ProgressBar mProgress;
-    private View mFindContainer;
-    private TextView mFindCount;
-    private EditText mFindKey;
+    private final Docker<MainActivity> mDocker = new Docker<>(this);
+    private final Finder<MainActivity> mFinder = new Finder<>(this);
+
     private final Runnable mProgressWatcher = new Runnable() {
         @Override
         public void run() {
@@ -80,12 +75,7 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
         }
     };
     private CompoundButton mLocker;
-    private final Runnable mHideControllerTask = new Runnable() {
-        @Override
-        public void run() {
-            hideController();
-        }
-    };
+    private final Runnable mHideControllerTask = () -> hideController();
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -117,14 +107,13 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
         mController = findViewById(R.id.controller);
         mPanel = findViewById(R.id.panel);
         mTitle = findViewById(R.id.title);
-        mIcon = findViewById(R.id.icon);
         mTitle.setOnClickListener(this);
+        mDocker.initIfNecessary();
 
 //        findViewById(R.id.forward).setOnClickListener(this);
         findViewById(R.id.reload).setOnClickListener(this);
         findViewById(R.id.more).setOnClickListener(this);
-
-        setupFind();
+        mFinder.initIfNecessary();
     }
 
     @Override
@@ -153,17 +142,12 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
                 startActivity(new Intent(this, DemoActivity.class));
                 return true;
             case R.id.menu_item_find:
-                toggleFind();
+                mFinder.toggleFind(mWebView);
                 return true;
             default:
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches, boolean isDoneCounting) {
-        mFindCount.setText(activeMatchOrdinal + "/" + numberOfMatches);
     }
 
     @Nullable
@@ -185,7 +169,8 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
     }
 
     @Override
-    public void onDownloadStart(final String url, String userAgent, final String contentDisposition, final String mimetype, long contentLength) {
+    public void onDownloadStart(final String url, String userAgent, final String contentDisposition,
+                                final String mimetype, long contentLength) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.download);
         builder.setMessage(contentDisposition + " " + url);
@@ -307,15 +292,6 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
             case R.id.reload:
                 mWebView.reload();
                 break;
-            case R.id.btn_find_cancel:
-                cancelFind();
-                break;
-            case R.id.btn_find_privous:
-                mWebView.findNext(false);
-                break;
-            case R.id.btn_find_next:
-                mWebView.findNext(true);
-                break;
             case R.id.more:
                 openOptionsMenu();
                 break;
@@ -358,48 +334,6 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
         super.onBackPressed();
     }
 
-    private void setupFind() {
-        mWebView.setFindListener(this);
-        mFindContainer = findViewById(R.id.find_container);
-        mFindCount = findViewById(R.id.tv_find_count);
-        mFindKey = findViewById(R.id.et_find_key);
-        findViewById(R.id.btn_find_cancel).setOnClickListener(this);
-        findViewById(R.id.btn_find_next).setOnClickListener(this);
-        findViewById(R.id.btn_find_privous).setOnClickListener(this);
-
-        mFindKey.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                mWebView.findAllAsync(s.toString());
-            }
-        });
-    }
-
-    private void toggleFind() {
-        if (View.VISIBLE == mFindContainer.getVisibility()) {
-            cancelFind();
-        } else {
-            openFind();
-        }
-    }
-
-
-    private void openFind() {
-        mFindContainer.setVisibility(View.VISIBLE);
-    }
-
-    private void cancelFind() {
-        mFindKey.setText("");
-        mFindContainer.setVisibility(View.GONE);
-    }
 
     private boolean preBack() {
         if (sHandler.hasMessages(MSG_EXIT)) {
@@ -435,7 +369,7 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
 
         if (!setIcon(mTouchIconMap.get(view.getUrl())) && null != icon) {
             Log.i(Logger.getStackTag("icon size"), String.valueOf(icon.getByteCount()));
-            mIcon.setImageBitmap(icon);
+            setIcon(icon);
         }
     }
 
@@ -462,13 +396,23 @@ public class MainActivity extends AbsActivity implements PermissionsRequestCode,
     }
 
     public boolean setIcon(String imgUrl) {
+        Log.i(Logger.getStackTag(), "imgUrl: " + imgUrl);
         if (TextUtils.isEmpty(imgUrl)) {
             return false;
         }
-        Log.i(Logger.getStackTag("imgUrl"), imgUrl);
-        GlideApp.with(this).load(imgUrl).centerCrop().into(mIcon);
+        mDocker.setIcon(imgUrl);
         return true;
     }
+
+    public boolean setIcon(Bitmap img) {
+        Log.i(Logger.getStackTag(), "img: " + img);
+        if (null == img) {
+            return false;
+        }
+        mDocker.setIcon(img);
+        return true;
+    }
+
 
     @Override
     public void changeProgress(WebView view, int newProgress) {
