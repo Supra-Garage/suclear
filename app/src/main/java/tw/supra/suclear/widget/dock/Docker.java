@@ -1,6 +1,7 @@
 package tw.supra.suclear.widget.dock;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -35,6 +36,7 @@ import tw.supra.suclear.widget.Widget;
 
 public abstract class Docker<HosT extends Activity> extends Widget<HosT>
         implements CompoundButton.OnCheckedChangeListener, View.OnClickListener, TextView.OnEditorActionListener {
+    private static final String SP_BOOL_LOCKER = "DOCKER_LOCKED";
     private static Handler sHandler = new Handler();
     private ImageView mViewIcon;
     private CompoundButton mLocker;
@@ -78,8 +80,7 @@ public abstract class Docker<HosT extends Activity> extends Widget<HosT>
             HosT host = getHost();
             mController = host.findViewById(R.id.controller);
             mPanel = host.findViewById(R.id.panel);
-            mLocker = host.findViewById(R.id.lock);
-            mLocker.setOnCheckedChangeListener(this);
+
             mViewIcon = host.findViewById(R.id.icon);
             mUrlEditor = host.findViewById(R.id.url_editor);
             mUrlEditor.setOnEditorActionListener(this);
@@ -89,6 +90,10 @@ public abstract class Docker<HosT extends Activity> extends Widget<HosT>
             //        findViewById(R.id.forward).setOnClickListener(this);
             host.findViewById(R.id.reload).setOnClickListener(this);
             host.findViewById(R.id.more).setOnClickListener(this);
+
+            mLocker = host.findViewById(R.id.lock);
+            mLocker.setChecked(lock(getHost().getPreferences(Context.MODE_PRIVATE).getBoolean(SP_BOOL_LOCKER, false)));
+            mLocker.setOnCheckedChangeListener(this);
             return true;
         }
         return false;
@@ -96,11 +101,8 @@ public abstract class Docker<HosT extends Activity> extends Widget<HosT>
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (isChecked) {
-            clearHideControllerTask();
-        } else {
-            hideControllerDelayed();
-        }
+        lock(isChecked);
+        getHost().getPreferences(Context.MODE_PRIVATE).edit().putBoolean(SP_BOOL_LOCKER, isChecked).apply();
     }
 
     @Override
@@ -298,4 +300,14 @@ public abstract class Docker<HosT extends Activity> extends Widget<HosT>
     public void setTitleHint(String hint) {
         mTitle.setHint(hint);
     }
+
+    private boolean lock(boolean locked) {
+        if (locked) {
+            clearHideControllerTask();
+        } else {
+            hideControllerDelayed();
+        }
+        return locked;
+    }
+
 }
