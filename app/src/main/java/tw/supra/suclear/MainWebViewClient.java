@@ -143,7 +143,7 @@ public class MainWebViewClient extends WebViewClient {
             return context.getPackageManager().getActivityIcon(name);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-            return context.getDrawable(R.mipmap.ic_logo);
+            return context.getDrawable(R.drawable.ic_logo_layers);
         }
     }
 

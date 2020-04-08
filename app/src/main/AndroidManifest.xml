@@ -12,9 +12,8 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher_trans"
+        android:icon="@drawable/ic_logo_layers"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_trans_round"
         android:supportsRtl="true"
         android:fullBackupContent="true"
         android:theme="@style/AppTheme"
@@ -22,9 +21,11 @@
         android:appComponentFactory="whateverString"
         android:usesCleartextTraffic="true"
         >
+        <!--        android:roundIcon="@mipmap/ic_launcher_trans_round"-->
+
         <activity
             android:name=".MainActivity"
-            android:banner="@mipmap/ic_launcher"
+            android:banner="@drawable/ic_logo_layers"
             android:configChanges="keyboard|keyboardHidden|orientation|layoutDirection|screenSize"
             android:launchMode="singleInstance"
             android:windowSoftInputMode="adjustResize">
