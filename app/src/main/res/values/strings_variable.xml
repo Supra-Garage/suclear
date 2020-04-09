@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">suclear</string>
+    <bool name="debug" >false</bool>
+</resources>

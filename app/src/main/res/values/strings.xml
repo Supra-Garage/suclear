@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">suclear</string>
     <string name="find">查找</string>
     <string name="refresh">刷新</string>
     <string name="download">下载</string>

@@ -11,15 +11,43 @@ android {
         minSdkVersion(28)
         targetSdkVersion(29)
         versionCode = 2
-        versionName = "1.0.1-alpha"
+        versionName = "1.0.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("debug")
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
+
         getByName("release") {
-            isMinifyEnabled = false
-            proguardFiles( getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("debug")
+//            signingConfig = signingConfigs.getByName("release")
+            isDebuggable = false
+            isZipAlignEnabled = true
+            isMinifyEnabled = true
+            proguardFile(getDefaultProguardFile("proguard-android.txt"))
+            // global proguard settings
+            proguardFile(file("proguard-rules.pro"))
+            // library proguard settings
+//            val files = rootProject.file("proguard")
+//                    .listFiles()
+//                    .filter { it.name.startsWith("proguard") }
+//                    .toTypedArray()
+//            proguardFiles(*files)
         }
     }
+
+//    signingConfigs {
+//        create("release") {
+//            storeFile = rootProject.file("release.keystore")
+//            storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+//            keyAlias = System.getenv("ANDROID_KEYSTORE_ALIAS")
+//            keyPassword = System.getenv("ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD")
+//        }
+//    }
+
     compileOptions {
         setTargetCompatibility(1.8)
         setSourceCompatibility(1.8)
@@ -67,5 +95,5 @@ dependencies {
     // Because RxAndroid releases are few and far between, it is recommended you also
     // explicitly depend on RxJava's latest version for bug fixes and new features.
     // (see https://github.com/ReactiveX/RxJava/releases for latest 3.x.x version)
-    implementation ("io.reactivex.rxjava3:rxjava:3.0.0")
+    implementation("io.reactivex.rxjava3:rxjava:3.0.0")
 }
