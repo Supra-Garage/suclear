@@ -52,14 +52,20 @@ android {
         setTargetCompatibility(1.8)
         setSourceCompatibility(1.8)
     }
+
+//    testOptions {
+//        unitTests {
+//            includeAndroidResources = true
+//        }
+//    }
 }
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("androidx.arch.core:core-common:2.1.0")
 //    implementation("androidx.arch.core:core:2.0.0-rc01")
-    implementation("androidx.core:core:1.3.0-alpha02")
-    implementation("androidx.core:core-ktx:1.3.0-alpha02")
+    implementation("androidx.core:core:1.2.0")
+    implementation("androidx.core:core-ktx:1.2.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.70")
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("com.google.android.material:material:1.1.0")
