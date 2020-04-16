@@ -53,7 +53,6 @@ public abstract class Browser<HosT extends Activity> extends Widget<HosT> implem
         builder.setNegativeButton(android.R.string.cancel, null);
         builder.setCancelable(true);
         builder.show();
-
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -66,7 +65,6 @@ public abstract class Browser<HosT extends Activity> extends Widget<HosT> implem
             mWebView.setWebViewClient(new MainWebViewClient());
             mWebView.setWebChromeClient(new MainWebChromeClient());
             mWebView.setDownloadListener(this);
-
             WebSettings settings = mWebView.getSettings();
             settings.setJavaScriptEnabled(true);
             settings.setDomStorageEnabled(true);

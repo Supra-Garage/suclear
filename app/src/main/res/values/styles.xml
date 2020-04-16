@@ -1,7 +1,11 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Material.NoActionBar" />
+    <style name="AppTheme" parent="android:Theme.Material.NoActionBar">
+        <!-- enable window content transitions -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
 
     <style name="Widget.Supra.ProgressBar.Horizontal" parent="android:style/Widget.Material.ProgressBar.Horizontal">
         <item name="android:minHeight">1dip</item>

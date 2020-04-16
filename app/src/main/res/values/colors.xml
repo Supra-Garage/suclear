@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="red" >#FF0000</color>
+    <color name="black_trans_half" >#80000000</color>
     <color name="red_trans_half" >#80FF0000</color>
     <color name="red_trans_quarter" >#BFFF0000</color>
     <color name="red_trans_quarter3" >#3FFF0000</color>
