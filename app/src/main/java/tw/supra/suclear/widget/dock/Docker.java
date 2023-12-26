@@ -57,6 +57,8 @@ public abstract class Docker<HosT extends Activity> extends Widget<HosT>
 
     protected abstract void onLaunch(CharSequence action);
 
+    protected abstract void onMenuClicked(View view);
+
     @Nullable
     @Override
     protected HostCallback createHostCallback() {
@@ -113,7 +115,7 @@ public abstract class Docker<HosT extends Activity> extends Widget<HosT>
         } else if (id == R.id.reload) {
             onReload();
         } else if (id == R.id.more) {
-            getHost().openOptionsMenu();
+            onMenuClicked(v);
         } else {
             AppUtil.toast(getHost(), "not implement yet !");
         }

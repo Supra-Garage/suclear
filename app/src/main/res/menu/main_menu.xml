@@ -8,5 +8,8 @@
         android:id="@+id/menu_item_demo"
         android:title="@string/demo"
         android:visible="@bool/debug" />
+    <item
+        android:id="@+id/menu_item_setting"
+        android:title="@string/setting" />
 
 </menu>

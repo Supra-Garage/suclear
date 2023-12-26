@@ -1,6 +1,6 @@
 package tw.supra.suclear;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 
-public abstract class AbsActivity extends Activity {
+public abstract class AbsActivity extends AppCompatActivity {
 }

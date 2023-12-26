@@ -8,12 +8,19 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.core.widget.PopupMenuCompat;
 
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 
@@ -22,6 +29,7 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 import tw.supra.suclear.demo.DemoActivity;
+import tw.supra.suclear.setting.SuSettingsActivity;
 import tw.supra.suclear.utils.typedbox.AppUtil;
 import tw.supra.suclear.widget.Agency;
 import tw.supra.suclear.widget.dock.Docker;
@@ -74,6 +82,11 @@ public class MainActivity extends AbsActivity implements KeyboardWatcherFrameLay
         protected void onLaunch(CharSequence action) {
             go(action);
         }
+
+        @Override
+        protected void onMenuClicked(View view) {
+            showMenu(view);
+        }
     };
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -102,24 +115,28 @@ public class MainActivity extends AbsActivity implements KeyboardWatcherFrameLay
         mAgency.onResume();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.menu_item_demo) {
-            startActivity(new Intent(this, DemoActivity.class));
-            return true;
-        } else if (id == R.id.menu_item_find) {
-            mFinder.toggleFind(mBrowser.curWebView());
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
+    private void showMenu(@NonNull View anchor) {
+        PopupMenu menu = new PopupMenu(this, anchor);
+        menu.inflate(R.menu.main_menu);
+        menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int id = item.getItemId();
+                if (id == R.id.menu_item_demo) {
+                    startActivity(new Intent(MainActivity.this, DemoActivity.class));
+                    return true;
+                } else if (id == R.id.menu_item_find) {
+                    mFinder.toggleFind(mBrowser.curWebView());
+                    return true;
+                } else if (id == R.id.menu_item_setting) {
+                    startActivity(new Intent(MainActivity.this, SuSettingsActivity.class));
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+        menu.show();
     }
 
 

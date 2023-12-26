@@ -24,13 +24,17 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:replace="android:appComponentFactory">
-        <!--        android:roundIcon="@mipmap/ic_launcher_trans_round"-->
-
+        <activity
+            android:name=".setting.SuSettingsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_su_settings" />
+        <!-- android:roundIcon="@mipmap/ic_launcher_trans_round" -->
         <activity
             android:name=".MainActivity"
             android:banner="@drawable/ic_logo_layers"
             android:configChanges="keyboard|keyboardHidden|orientation|layoutDirection|screenSize"
             android:launchMode="singleInstance"
+            android:theme="@style/MainActivityTheme"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
