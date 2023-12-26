@@ -9,10 +9,8 @@ import android.os.Messenger;
 import android.util.Log;
 import android.widget.Toast;
 
-import tw.supra.lib.supower.util.Logger;
-
 public class SuService extends Service {
-
+    private static final String TAG = "SuService";
 
     /** Command to the service to display a message */
     static final int MSG_SAY_HELLO = 1;
@@ -40,25 +38,25 @@ public class SuService extends Service {
 
 
     public SuService() {
-        Log.i(Logger.getStackTag(), "SuService");
+        Log.i(TAG, "SuService");
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.i(Logger.getStackTag(), "onBind " +
+        Log.i(TAG, "onBind " +
                 "\n intent: " + intent.toString());
         return mMessenger.getBinder();
     }
 
     @Override
     public void onCreate() {
-        Log.i(Logger.getStackTag(), "onCreate");
+        Log.i(TAG, "onCreate");
         super.onCreate();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(Logger.getStackTag(), "onStartCommand" +
+        Log.i(TAG, "onStartCommand" +
                 "\n intent: " + intent.toString() +
                 "\n flags: " + flags +
                 "\n startId" + startId
@@ -68,27 +66,27 @@ public class SuService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.i(Logger.getStackTag(), "onDestroy");
+        Log.i(TAG, "onDestroy");
         super.onDestroy();
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.i(Logger.getStackTag(), "onUnbind " +
+        Log.i(TAG, "onUnbind " +
                 "\n intent: " + intent.toString());
         return super.onUnbind(intent);
     }
 
     @Override
     public void onRebind(Intent intent) {
-        Log.i(Logger.getStackTag(), "onRebind " +
+        Log.i(TAG, "onRebind " +
                 "\n intent: " + intent.toString());
         super.onRebind(intent);
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        Log.i(Logger.getStackTag(), "onTaskRemoved " +
+        Log.i(TAG, "onTaskRemoved " +
                 "\n rootIntent: " + rootIntent.toString());
         super.onTaskRemoved(rootIntent);
     }

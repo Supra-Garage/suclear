@@ -1,25 +1,16 @@
 package tw.supra.suclear;
 
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.app.AlertDialog;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.net.http.SslError;
 import android.util.Log;
 import android.webkit.SslErrorHandler;
@@ -30,23 +21,17 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import org.w3c.dom.Text;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.xml.validation.Schema;
-
-import tw.supra.lib.supower.util.Logger;
 
 /**
  * Created by supra on 17-7-23.
  */
 public class MainWebViewClient extends WebViewClient {
+    private static final String TAG = "MainWebViewClient";
 
     @Override
     public boolean shouldOverrideUrlLoading(final WebView view, WebResourceRequest request) {
@@ -226,7 +211,7 @@ public class MainWebViewClient extends WebViewClient {
                 } else {
                     msg.append(".");
                 }
-                Log.i(Logger.getStackTag("onReceivedHttpError"), "data:: " + data);
+                Log.i(TAG, "toString: onReceivedHttpError data = " + data);
             }
         } catch (IOException e) {
             e.printStackTrace();

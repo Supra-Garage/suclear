@@ -2,9 +2,12 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="suclear/app" />
-      <module fileurl="file://$PROJECT_DIR$/suclear.iml" filepath="$PROJECT_DIR$/suclear.iml" group="suclear" />
+      <module fileurl="file://$PROJECT_DIR$/suclear.iml" filepath="$PROJECT_DIR$/suclear.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/suclear-app.iml" filepath="$PROJECT_DIR$/app/suclear-app.iml" group="suclear/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/suclear.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/suclear.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/suclear.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/suclear.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/suclear.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/suclear.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/suclear.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/suclear.app.unitTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/workSpace-suclear.iml" filepath="$PROJECT_DIR$/workSpace-suclear.iml" group="suclear" />
     </modules>
   </component>

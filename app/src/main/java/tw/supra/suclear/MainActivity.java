@@ -21,7 +21,6 @@ import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
-import tw.supra.lib.supower.util.Logger;
 import tw.supra.suclear.demo.DemoActivity;
 import tw.supra.suclear.utils.typedbox.AppUtil;
 import tw.supra.suclear.widget.Agency;
@@ -32,6 +31,7 @@ import tw.supra.suclear.widget.web.Browser;
 
 public class MainActivity extends AbsActivity implements KeyboardWatcherFrameLayout.OnSoftKeyboardShownListener {
 
+    private static final String TAG = "MainActivity";
     private static final String SCHEME_HTTP = "http";
     private static final int MSG_EXIT = android.R.id.closeButton;
     private static Handler sHandler = new Handler();
@@ -110,17 +110,16 @@ public class MainActivity extends AbsActivity implements KeyboardWatcherFrameLay
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_item_demo:
-                startActivity(new Intent(this, DemoActivity.class));
-                return true;
-            case R.id.menu_item_find:
-                mFinder.toggleFind(mBrowser.curWebView());
-                return true;
-            default:
-                break;
+        int id = item.getItemId();
+        if (id == R.id.menu_item_demo) {
+            startActivity(new Intent(this, DemoActivity.class));
+            return true;
+        } else if (id == R.id.menu_item_find) {
+            mFinder.toggleFind(mBrowser.curWebView());
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
 
@@ -168,7 +167,7 @@ public class MainActivity extends AbsActivity implements KeyboardWatcherFrameLay
     private boolean loadUrl(CharSequence target) {
         if (TextUtils.isEmpty(target)) {
             AppUtil.toast(this, "empty url");
-            Log.i(Logger.getStackTag(), "empty url");
+            Log.i(TAG, "loadUrl: empty url");
             return false;
         }
         String s = target.toString();
@@ -187,22 +186,22 @@ public class MainActivity extends AbsActivity implements KeyboardWatcherFrameLay
 
         String scheme = url.scheme();
 
-        Log.i(Logger.getStackTag("scheme"), scheme);
-        Log.i(Logger.getStackTag("host"), url.host());
+        Log.i(TAG, "loadUrl: scheme = " + scheme);
+        Log.i(TAG, "loadUrl: host = " + url.host());
 
         if (TextUtils.isEmpty(scheme)) {
             builder.scheme(SCHEME_HTTP);
         }
 
         String urlStr = builder.build().toString();
-        Log.i(Logger.getStackTag("urlStr"), urlStr);
+        Log.i(TAG, "loadUrl: urlStr = " + urlStr);
         if (!URLUtil.isValidUrl(urlStr)) {
-            Log.i(Logger.getStackTag("urlStr"), "isNotValidUrl");
+            Log.i(TAG, "loadUrl: urlStr isNotValidUrl");
             return false;
         }
         mDocker.setUrl(urlStr);
 
-        Log.i(Logger.getStackTag("load url"), urlStr);
+        Log.i(TAG, "loadUrl: load url = " + urlStr);
         mBrowser.loadUrl(urlStr);
         return true;
     }
@@ -214,7 +213,7 @@ public class MainActivity extends AbsActivity implements KeyboardWatcherFrameLay
             return false;
         }
         String uriStr = target.toString();
-        Log.i(Logger.getStackTag("target"), uriStr);
+        Log.i(TAG, "openUri: target = " + uriStr);
 
         return openUri(Uri.parse(uriStr));
     }
@@ -230,7 +229,7 @@ public class MainActivity extends AbsActivity implements KeyboardWatcherFrameLay
         if (TextUtils.isEmpty(uri.getScheme())) {
             return false;
         }
-        Log.i(Logger.getStackTag("scheme"), scheme);
+        Log.i(TAG,"openUri: scheme = "+ scheme);
 
         Intent intent;
         try {

@@ -66,19 +66,14 @@ public class Finder<HosT extends Activity> extends Widget<HosT>
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_find_privous:
-                findNext(false);
-                break;
-            case R.id.btn_find_next:
-                findNext(true);
-                break;
-            case R.id.btn_find_cancel:
-            default:
-                cancel();
-                break;
+        int id = v.getId();
+        if(id == R.id.btn_find_privous) {
+            findNext(false);
+        } else if (id == R.id.btn_find_next) {
+            findNext(true);
+        }else { // R.id.btn_find_cancel
+            cancel();
         }
-
     }
 
     @Override

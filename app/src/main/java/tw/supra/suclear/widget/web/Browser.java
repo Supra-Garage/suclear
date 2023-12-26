@@ -20,7 +20,6 @@ import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import tw.supra.lib.supower.util.Logger;
 import tw.supra.suclear.MainWebChromeClient;
 import tw.supra.suclear.MainWebView;
 import tw.supra.suclear.MainWebViewClient;
@@ -33,6 +32,8 @@ import tw.supra.suclear.widget.Agency;
 import tw.supra.suclear.widget.Widget;
 
 public abstract class Browser<HosT extends Activity> extends Widget<HosT> implements DownloadListener, MainWebViewHost, PermissionsRequestCode {
+
+    private static final String TAG = "Browser";
     private MainWebView mWebView;
 
     public Browser(@NonNull Agency<HosT> agency) {
@@ -154,7 +155,7 @@ public abstract class Browser<HosT extends Activity> extends Widget<HosT> implem
 //        request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
         // 设置下载文件保存的路径和文件名
         String fileName = URLUtil.guessFileName(url, contentDisposition, mimetype);
-        Log.d(Logger.getStackTag(), "fileName:" + fileName);
+        Log.d(TAG, "fileName:" + fileName);
         // This put the download in the same Download dir the browser uses
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
 //        另外可选一下方法，自定义下载路径

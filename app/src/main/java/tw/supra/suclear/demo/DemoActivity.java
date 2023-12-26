@@ -19,7 +19,6 @@ import android.widget.TextView;
 import java.util.HashMap;
 import java.util.Map;
 
-import tw.supra.lib.supower.util.Logger;
 import tw.supra.suclear.AbsActivity;
 import tw.supra.suclear.R;
 import tw.supra.suclear.service.SuService;
@@ -27,6 +26,7 @@ import tw.supra.suclear.service.SuService;
 public class DemoActivity extends AbsActivity implements ServiceConnection, AdapterView.OnItemClickListener,
 //        ExpandableListView.OnGroupClickListener,
         ExpandableListView.OnChildClickListener, SeekBar.OnSeekBarChangeListener {
+    private static final String TAG = "DemoActiviey";
     private static final String SP_BG_TRANS = "BG_TRANS";
     private static final int BG_TRANS_DEFAULT = 50;
 
@@ -62,7 +62,7 @@ public class DemoActivity extends AbsActivity implements ServiceConnection, Adap
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Log.i(Logger.getStackTag(), "position=" + position + " id=" + id);
+        Log.i(TAG, "position=" + position + " id=" + id);
     }
 
     @Override
@@ -83,7 +83,7 @@ public class DemoActivity extends AbsActivity implements ServiceConnection, Adap
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        Log.i(Logger.getStackTag(), "name: " + name + "  service: " + service);
+        Log.i(TAG, "name: " + name + "  service: " + service);
         synchronized (mServices) {
             mServices.put(name.flattenToString(), service);
         }
@@ -91,7 +91,7 @@ public class DemoActivity extends AbsActivity implements ServiceConnection, Adap
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        Log.i(Logger.getStackTag(), "name: " + name);
+        Log.i(TAG, "name: " + name);
         synchronized (mServices) {
             mServices.remove(name.flattenToString());
         }

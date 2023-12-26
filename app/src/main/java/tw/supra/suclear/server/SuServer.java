@@ -1,6 +1,7 @@
 package tw.supra.suclear.server;
 
 import android.app.Activity;
+import android.os.Environment;
 
 import com.koushikdutta.async.callback.CompletedCallback;
 import com.koushikdutta.async.http.server.AsyncHttpServer;
@@ -29,12 +30,35 @@ public final class SuServer extends AsyncHttpServer {
         }
     }
 
+    private static class ServerDirectory {
+        final String regex;
+        final File directory;
+        final boolean list;
+
+        private ServerDirectory(String regex, File directory, boolean list) {
+            this.regex = regex;
+            this.directory = directory;
+            this.list = list;
+        }
+    }
+
     private static void init(Activity activity) {
 
         SuServer server = new SuServer();
 
-        server.directory("/sd1", new File("/sdcard/sd1"), true);
-        server.directory("/sd2", new File("/sdcard/sd2"), true);
+        ServerDirectory[] directories = {
+          new ServerDirectory("/sd1", new File(Environment.getExternalStorageDirectory(), "sd1"), true),
+          new ServerDirectory("/sd2", new File(Environment.getExternalStorageDirectory(), "sd2"), true)
+        };
+
+        for (ServerDirectory directory : directories) {
+            if (!directory.directory.exists()) {
+                directory.directory.mkdirs();
+            }
+            if (directory.directory.isDirectory()) {
+                server.directory(directory.regex, directory.directory, directory.list);
+            }
+        }
 
         server.get("/", new HttpServerRequestCallback() {
             @Override

@@ -107,26 +107,24 @@ public abstract class Docker<HosT extends Activity> extends Widget<HosT>
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            //            case R.id.forward:
+        int id = v.getId();
+        if (id == R.id.title) {
+            edit();
+        } else if (id == R.id.reload) {
+            onReload();
+        } else if (id == R.id.more) {
+            getHost().openOptionsMenu();
+        } else {
+            AppUtil.toast(getHost(), "not implement yet !");
+        }
+
+
+        //            case R.id.forward:
 //                goForward();
 //                break;
 //            case R.id.hide:
 //                hideController();
 //                break;
-            case R.id.title:
-                edit();
-                break;
-            case R.id.reload:
-                onReload();
-                break;
-            case R.id.more:
-                getHost().openOptionsMenu();
-                break;
-            default:
-                AppUtil.toast(getHost(), "not implement yet !");
-                break;
-        }
 
     }
 
