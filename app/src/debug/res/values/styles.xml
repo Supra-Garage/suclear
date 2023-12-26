@@ -1,0 +1,12 @@
+<resources>
+
+
+    <style name="DemoActivityTheme" parent="Theme.AppCompat.NoActionBar">
+        <!-- enable window content transitions -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:actionOverflowMenuStyle">@style/Widget.AppCompat.PopupMenu</item>
+    </style>
+
+
+</resources>
